@@ -1,33 +1,16 @@
-const fs = require('fs');
+const { readInput } = require('../utils');
 
-const input = fs.readFileSync('./input.txt', 'utf-8').trim().split('\n');
+const input = readInput('./input.txt');
 
-const fuelReq = (mass) => Math.max(Math.floor(mass / 3) - 2, 0);
+const fuelReq = require('./part1');
 
-let totalFuelReq = input
+let getTotalFuelRequired = (fuelRequiredFunc) => input
   .map(i => parseInt(i, 10))
-  .map(fuelReq)
+  .map(fuelRequiredFunc)
   .reduce((acc, next) => acc + next, 0);
 
-console.log('Part 1: ', totalFuelReq);
+console.log('Part 1: ', getTotalFuelRequired(fuelReq))
 
-const fuelReq2 = (mass) => {
-  let fuel = fuelReq(mass);
+const fuelReq2 = require('./part2');
 
-  let additionalFuelReq = fuelReq(fuel);
-
-  while (additionalFuelReq > 0) {
-    fuel += additionalFuelReq;
-
-    additionalFuelReq = fuelReq(additionalFuelReq);
-  }
-
-  return fuel;
-}
-
-let totalFuelReq2 = input
-  .map(i => parseInt(i, 10))
-  .map(fuelReq2)
-  .reduce((acc, next) => acc + next, 0);
-
-console.log('Part 2: ', totalFuelReq2);
+console.log('Part 2: ', getTotalFuelRequired(fuelReq2));
