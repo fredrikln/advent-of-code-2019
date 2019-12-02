@@ -2,13 +2,9 @@ const ADD = 1;
 const MULTIPLY = 2;
 const HALT = 99;
 
-module.exports.intcode = (memory) => (noun = null, verb = null) => {
+module.exports.intcode = (memory) => {
   // Create a copy of the memory as the current program
   const program = memory.slice(0)
-
-  // Load noun and verb if available (not available in Day 2 examples for test)
-  if (noun !== null) program[1] = noun;
-  if (verb !== null) program[2] = verb;
 
   // Start pointer at 0
   let pointer = 0;
