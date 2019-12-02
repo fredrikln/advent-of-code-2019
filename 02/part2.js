@@ -7,7 +7,7 @@ module.exports = (data, target = 19690720) => {
         let memory = part1(data, noun, verb);
 
         if (memory[0] === target) {
-          return memory;
+          return [noun, verb];
         }
       } catch (e) {
         continue;
