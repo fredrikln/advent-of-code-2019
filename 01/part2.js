@@ -1,15 +1,15 @@
-const fuelReq = require('./part1');
+const fuelReq = require('./part1')
 
 module.exports = (mass) => {
-  let fuel = fuelReq(mass);
+  let fuel = fuelReq(mass)
 
-  let additionalFuelReq = fuelReq(fuel);
+  let additionalFuelReq = fuelReq(fuel)
 
   while (additionalFuelReq > 0) {
-    fuel += additionalFuelReq;
+    fuel += additionalFuelReq
 
-    additionalFuelReq = fuelReq(additionalFuelReq);
+    additionalFuelReq = fuelReq(additionalFuelReq)
   }
 
-  return fuel;
+  return fuel
 }
