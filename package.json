@@ -12,7 +12,9 @@
   "scripts": {
     "test": "mocha **/tests.js"
   },
-  "pre-commit": ["test"],
+  "pre-commit": [
+    "test"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fredrikln/advent-of-code-2019.git"

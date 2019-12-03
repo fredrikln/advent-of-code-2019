@@ -1,12 +1,12 @@
 module.exports = (wires) => {
-  const grid = {0: {}};
+  const grid = {};
 
-  const markGrid = (x, y, index, wireSteps) => {
-    if (!grid[y]) grid[y] = {};
+  const markGrid = (wire, x, y, steps) => {
+    const key = `${x},${y}`;
 
-    if (!grid[y][x]) grid[y][x] = {};
+    if (!grid[key]) grid[key] = {};
 
-    grid[y][x][index] = wireSteps;
+    grid[key][wire] = steps;
   }
 
   wires.forEach((wire, index) => {
@@ -14,7 +14,8 @@ module.exports = (wires) => {
 
     let x = 0;
     let y = 0;
-    let wireSteps = 0;
+
+    let totalSteps = 0;
 
     instructions.forEach(instruction => {
       const direction = instruction.substring(0,1);
@@ -42,25 +43,25 @@ module.exports = (wires) => {
       }
 
       for (let i = 0; i < steps; i++) {
-        wireSteps += 1;
         x += dirX;
         y += dirY;
 
-        markGrid(x, y, index, wireSteps);
+        totalSteps++;
+
+        markGrid(index, x, y, totalSteps);
       }
     });
   });
 
-  let minSteps = Number.MAX_VALUE;
-  Object.keys(grid).forEach(y => {
-    Object.keys(grid[y]).forEach(x => {
-      if (Object.keys(grid[y][x]).length > 1) {
-        let totalWireSteps = Object.keys(grid[y][x]).map(key => grid[y][x][key]).reduce((acc, next) => acc + next, 0);
+  let minTotalSteps = Number.MAX_VALUE;
+  Object.keys(grid).forEach(key => {
+    if (Object.keys(grid[key]).length > 1) {
+      const parts = key.split(',');
+      const totalSteps = Object.keys(grid[key]).map(wire => grid[key][wire]).reduce((acc, next) => acc + next, 0);
 
-        if (totalWireSteps < minSteps) minSteps = totalWireSteps;
-      }
-    });
+      if (totalSteps !== 0 && totalSteps < minTotalSteps) minTotalSteps = totalSteps;
+    }
   });
 
-  return minSteps;
+  return minTotalSteps;
 }

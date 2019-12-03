@@ -1,12 +1,12 @@
 module.exports = (wires) => {
-  const grid = {0: {}};
+  const grid = {};
 
-  const markGrid = (x, y, index) => {
-    if (!grid[y]) grid[y] = {};
+  const markGrid = (wire, x, y, steps) => {
+    const key = `${x},${y}`;
 
-    if (!grid[y][x]) grid[y][x] = {};
+    if (!grid[key]) grid[key] = {};
 
-    grid[y][x][index] = 1;
+    grid[key][wire] = steps;
   }
 
   wires.forEach((wire, index) => {
@@ -14,6 +14,8 @@ module.exports = (wires) => {
 
     let x = 0;
     let y = 0;
+
+    let totalSteps = 0;
 
     instructions.forEach(instruction => {
       const direction = instruction.substring(0,1);
@@ -44,19 +46,20 @@ module.exports = (wires) => {
         x += dirX;
         y += dirY;
 
-        markGrid(x,y, index);
+        totalSteps++;
+
+        markGrid(index, x, y, totalSteps);
       }
     });
   });
 
   let minDistance = Number.MAX_VALUE;
-  Object.keys(grid).forEach(y => {
-    Object.keys(grid[y]).forEach(x => {
-      if (Object.keys(grid[y][x]).length > 1) {
-        const distance = Math.abs(x) + Math.abs(y);
-        if (distance !== 0 && distance < minDistance) minDistance = distance;
-      }
-    });
+  Object.keys(grid).forEach(key => {
+    if (Object.keys(grid[key]).length > 1) {
+      const parts = key.split(',');
+      const distance = Math.abs(parts[0]) + Math.abs(parts[1]);
+      if (distance !== 0 && distance < minDistance) minDistance = distance;
+    }
   });
 
   return minDistance;
