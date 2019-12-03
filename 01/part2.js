@@ -1,6 +1,6 @@
 const fuelReq = require('./part1')
 
-module.exports = (mass) => {
+module.exports = mass => {
   let fuel = fuelReq(mass)
 
   let additionalFuelReq = fuelReq(fuel)

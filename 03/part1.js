@@ -1,4 +1,4 @@
-module.exports = (wires) => {
+module.exports = wires => {
   const grid = {}
 
   const markGrid = (wire, x, y, steps) => {
@@ -18,13 +18,13 @@ module.exports = (wires) => {
     let totalSteps = 0
 
     instructions.forEach(instruction => {
-      const direction = instruction.substring(0,1)
+      const direction = instruction.substring(0, 1)
       const steps = parseInt(instruction.slice(1))
 
       let dirX = 0
       let dirY = 0
 
-      switch(direction) {
+      switch (direction) {
         case 'U':
           dirY = 1
           break

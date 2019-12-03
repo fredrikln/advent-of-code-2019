@@ -2,7 +2,7 @@ const ADD = 1
 const MULTIPLY = 2
 const HALT = 99
 
-module.exports.intcode = (memory) => {
+module.exports.intcode = memory => {
   // Create a copy of the memory as the current program
   const program = memory.slice(0)
 
@@ -15,7 +15,7 @@ module.exports.intcode = (memory) => {
     const b = program[pointer+2]
     const output = program[pointer+3]
 
-    switch(instruction) {
+    switch (instruction) {
       case ADD:
         program[output] = program[a] + program[b]
         pointer += 4
@@ -35,4 +35,4 @@ module.exports.intcode = (memory) => {
   }
 }
 
-module.exports.parseMemoryFromString = (data) => data.split(',').map(i => parseInt(i, 10))
+module.exports.parseMemoryFromString = data => data.split(',').map(i => parseInt(i, 10))

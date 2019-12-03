@@ -4,7 +4,7 @@ const input = readInput('./input.txt')
 
 const fuelReq = require('./part1')
 
-let getTotalFuelRequired = (fuelRequiredFunc) => input
+const getTotalFuelRequired = fuelRequiredFunc => input
   .map(i => parseInt(i, 10))
   .map(fuelRequiredFunc)
   .reduce((acc, next) => acc + next, 0)

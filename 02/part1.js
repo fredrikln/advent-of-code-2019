@@ -1,4 +1,4 @@
-let { intcode, parseMemoryFromString } = require('../utils/intcode')
+const { intcode, parseMemoryFromString } = require('../utils/intcode')
 
 module.exports = (data, noun = 12, verb = 2) => {
   const memory = parseMemoryFromString(data)
