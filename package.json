@@ -11,9 +11,9 @@
     "pre-commit": "^1.2.2"
   },
   "scripts": {
-    "test": "mocha **/tests.js",
+    "test": "mocha --ignore template/*.js **/tests.js",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint --fix ."
   },
   "pre-commit": [
     "lint",
@@ -23,8 +23,8 @@
     "type": "git",
     "url": "git+https://github.com/fredrikln/advent-of-code-2019.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Fredrik Larsson <fredrikln@gmail.com>",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/fredrikln/advent-of-code-2019/issues"
   },
