@@ -15,13 +15,9 @@ module.exports.parseOpCode = instruction => parseInt(instruction.toString().slic
 
 module.exports.getMode = (instruction, param) => parseInt(instruction.toString().slice(0, -2).padStart(param + 1, '0').split('').reverse().join('')[param], 10)
 
-module.exports.getValue = (program, addressOrValue, mode = MODE_POSITION) => {
-  if (mode === MODE_IMMEDIATE) return addressOrValue
+module.exports.getValue = (program, addressOrValue, mode = MODE_POSITION) => (mode === MODE_IMMEDIATE ? addressOrValue : program[addressOrValue])
 
-  return program[addressOrValue]
-}
-
-module.exports.intcode = (memory, input, outputCallback = console.log) => {
+module.exports.intcode = (memory, input = null, outputCallback = console.log) => {
   // Create a copy of the memory as the current program
   const program = memory.slice(0)
 
@@ -30,12 +26,11 @@ module.exports.intcode = (memory, input, outputCallback = console.log) => {
 
   while (pointer < program.length) {
     const rawInstruction = program[pointer]
-    const instruction = this.parseOpCode(rawInstruction)
 
     const a = this.getValue(program, program[pointer+1], this.getMode(rawInstruction, 0))
     const b = this.getValue(program, program[pointer+2], this.getMode(rawInstruction, 1))
 
-    switch (instruction) {
+    switch (this.parseOpCode(rawInstruction)) {
       case ADD:
         program[program[pointer+3]] = a + b
         pointer += 4
@@ -78,7 +73,7 @@ module.exports.intcode = (memory, input, outputCallback = console.log) => {
         return program
 
       default:
-        throw new Error(`Unknown opcode at position ${pointer}: ${instruction} (${program.toString()})`)
+        throw new Error(`Unknown opcode at position ${pointer}: ${rawInstruction} (${program.toString()})`)
     }
   }
 }
