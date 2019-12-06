@@ -1,5 +1,13 @@
 const {
+  opcodes,
+  modes,
+  comments,
+
   parseOpCode,
+  printHeaders,
+
+  MAX_PARAMETERS,
+
   ADD,
   MULTIPLY,
   INPUT,
@@ -8,50 +16,20 @@ const {
   JUMP_IF_FALSE,
   LESS_THAN,
   EQUAL,
-  HALT,
-  MODE_IMMEDIATE,
-  MODE_POSITION,
-  printHeaders
+  HALT
 } = require('./intcode-utils')
 
-const opcodes = {
-  [ADD]: 'ADD',
-  [MULTIPLY]: 'MUL',
-  [INPUT]: 'INP',
-  [OUTPUT]: 'OUT',
-  [JUMP_IF_TRUE]: 'JTR',
-  [JUMP_IF_FALSE]: 'JFL',
-  [LESS_THAN]: 'LT',
-  [EQUAL]: 'EQ',
-  [HALT]: 'HLT',
-}
-
-const comments = {
-  [ADD]: 'C = A + B',
-  [MULTIPLY]: 'C = A * B',
-  [INPUT]: 'A = <input>',
-  [OUTPUT]: 'output A',
-  [JUMP_IF_TRUE]: 'A != 0 -> jump to B',
-  [JUMP_IF_FALSE]: 'A == 0 -> jump to B',
-  [LESS_THAN]: 'C = (A < B) ? 1 : 0',
-  [EQUAL]: 'C = (A == B) ? 1 : 0',
-  [HALT]: 'halt program',
-}
-
-const modes = {
-  [MODE_POSITION]: '$',
-  [MODE_IMMEDIATE]: ' ',
-}
-
 const debugLogger = (pointer, ...values) => {
-  values = values.concat(Array(4 - values.length).fill(''))
+  values = values.concat(Array(MAX_PARAMETERS + 1 - values.length).fill(''))
 
-  const comment = comments[parseInt(values[0].toString().slice(-2), 10)] || 'raw value'
+  const instruction = values.shift()
+  const opcode = parseInt(instruction.toString().slice(-2), 10)
+  const opcodeOrValue = opcodes[opcode] || instruction
+  const comment = comments[opcode] || 'raw value'
+  const modeLookup = instruction.toString().slice(0, -2).padStart(4, '0').split('').reverse().join('')
 
-  const modeLookup = values[0].toString().slice(0, -2).padStart(4, '0').split('').reverse().join('')
-  values[0] = opcodes[parseInt(values[0].toString().slice(-2), 10)] || values[0]
   values = values.map((v, i) => {
-    let modeSymbol = modes[modeLookup[i-1]] || ' '
+    let modeSymbol = modes[modeLookup[i]] || ' '
     const value = v.toString()
 
     if (value === '') modeSymbol = ''
@@ -61,6 +39,7 @@ const debugLogger = (pointer, ...values) => {
 
   console.log(
     pointer.toString().padStart(4, ' '),
+    opcodeOrValue.toString().padStart(7, ' '),
     ...values,
     '   ; ' + comment
   )

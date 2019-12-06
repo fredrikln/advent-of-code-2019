@@ -1,3 +1,8 @@
+const MAX_PARAMETERS = 3
+
+const MODE_POSITION = 0
+const MODE_IMMEDIATE = 1
+
 const ADD = 1
 const MULTIPLY = 2
 const INPUT = 3
@@ -8,8 +13,46 @@ const LESS_THAN = 7
 const EQUAL = 8
 const HALT = 99
 
-const MODE_POSITION = 0
-const MODE_IMMEDIATE = 1
+const numParams = {
+  [ADD]: 3,
+  [MULTIPLY]: 3,
+  [INPUT]: 1,
+  [OUTPUT]: 1,
+  [JUMP_IF_TRUE]: 2,
+  [JUMP_IF_FALSE]: 2,
+  [LESS_THAN]: 3,
+  [EQUAL]: 3,
+  [HALT]: 0,
+}
+
+const opcodes = {
+  [ADD]: 'ADD',
+  [MULTIPLY]: 'MUL',
+  [INPUT]: 'INP',
+  [OUTPUT]: 'OUT',
+  [JUMP_IF_TRUE]: 'JTR',
+  [JUMP_IF_FALSE]: 'JFL',
+  [LESS_THAN]: 'LT',
+  [EQUAL]: 'EQ',
+  [HALT]: 'HLT',
+}
+
+const comments = {
+  [ADD]: 'C = A + B',
+  [MULTIPLY]: 'C = A * B',
+  [INPUT]: 'A = <input>',
+  [OUTPUT]: 'output A',
+  [JUMP_IF_TRUE]: 'A != 0 -> jump to B',
+  [JUMP_IF_FALSE]: 'A == 0 -> jump to B',
+  [LESS_THAN]: 'C = (A < B) ? 1 : 0',
+  [EQUAL]: 'C = (A == B) ? 1 : 0',
+  [HALT]: 'halt program',
+}
+
+const modes = {
+  [MODE_POSITION]: '$',
+  [MODE_IMMEDIATE]: ' ',
+}
 
 const parseOpCode = instruction => parseInt(instruction.toString().slice(-2), 10)
 
@@ -41,4 +84,9 @@ module.exports = {
   HALT,
   MODE_POSITION,
   MODE_IMMEDIATE,
+  MAX_PARAMETERS,
+  opcodes,
+  modes,
+  comments,
+  numParams
 }

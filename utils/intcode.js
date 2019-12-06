@@ -4,6 +4,7 @@ const {
   parseOpCode,
   getValue,
   getMode,
+
   ADD,
   MULTIPLY,
   INPUT,
