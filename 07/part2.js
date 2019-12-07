@@ -1,31 +1,38 @@
-const { intcode, parseMemoryFromString } = require('../utils/intcode')
+const { parseMemoryFromString } = require('../utils/intcode')
+const Intcode = require('../utils/intcode2')
 const { permutator } = require('./part1')
 
 const runConfiguration = (program, phaseSettings, toThrusters = console.log) => {
-  const amp1Input = [phaseSettings[0], 0]
-  const amp2Input = [phaseSettings[1]]
-  const amp3Input = [phaseSettings[2]]
-  const amp4Input = [phaseSettings[3]]
-  const amp5Input = [phaseSettings[4]]
+  let output = 0
 
-  let output
+  const computer1 = new Intcode({ memory: program })
+  computer1.addInput([phaseSettings[0]])
+  computer1.addInput([0])
 
-  intcode(program, amp1Input, amp1Output => {
-    amp2Input.push(amp1Output)
-  })
-  intcode(program, amp2Input, amp2Output => {
-    amp3Input.push(amp2Output)
-  })
-  intcode(program, amp3Input, amp3Output => {
-    amp4Input.push(amp3Output)
-  })
-  intcode(program, amp4Input, amp4Output => {
-    amp5Input.push(amp4Output)
-  })
-  intcode(program, amp5Input, amp5Output => {
-    output = amp5Output
-    amp1Input.push(amp5Output)
-  }, false, () => toThrusters(output))
+  const computer2 = new Intcode({ memory: program })
+  computer2.addInput([phaseSettings[1]])
+  computer2.addInput(computer1)
+
+  const computer3 = new Intcode({ memory: program })
+  computer3.addInput([phaseSettings[2]])
+  computer3.addInput(computer2)
+
+  const computer4 = new Intcode({ memory: program })
+  computer4.addInput([phaseSettings[3]])
+  computer4.addInput(computer3)
+
+  const computer5 = new Intcode({ memory: program, haltCallbacks: [() => toThrusters(output)]})
+  computer5.addInput([phaseSettings[4]])
+  computer5.addInput(computer4)
+  computer5.addOutput(val => output = val)
+
+  computer1.addInput(computer5)
+
+  computer1.run()
+  computer2.run()
+  computer3.run()
+  computer4.run()
+  computer5.run()
 }
 
 const part2 = module.exports = (data, callBack = console.log) => { // eslint-disable-line no-unused-vars

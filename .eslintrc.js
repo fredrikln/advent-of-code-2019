@@ -23,7 +23,7 @@ module.exports = {
     'object-curly-newline': ['error', { multiline: true, minProperties: 3 }],
     'array-bracket-spacing': ['error', 'never', { arraysInArrays: false, objectsInArrays: false }],
     'object-curly-spacing': ['error', 'always', { arraysInObjects: false, objectsInObjects: false }],
-    'object-property-newline': ['error'],
+    'object-property-newline': ['error', { "allowAllPropertiesOnSameLine": true }],
     'comma-spacing': ['error'],
     'comma-style': ['error'],
     'comma-dangle': ['error', 'only-multiline'],
