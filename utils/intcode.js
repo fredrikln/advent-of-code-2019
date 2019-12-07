@@ -16,14 +16,33 @@ const {
   HALT,
 } = require('./intcode-utils')
 
-const intcode = (memory, input = null, outputCallback = console.log, debug = false) => {
-  // Create a copy of the memory as the current program
-  const program = memory.slice(0)
+const intcode = (memory, input = null, outputCallback = console.log, debug = false, haltedCallback = () => {}) => {
+  const program = memory.slice()
 
   // Start pointer at 0
   let pointer = 0
+  let halted = false
+  let waitingForInput = false
 
-  while (pointer < program.length) {
+  const run = () => {
+    while (!halted && !waitingForInput) {
+      step()
+    }
+
+    if (waitingForInput) {
+      setTimeout(() => {
+        waitingForInput = false
+        run()
+      }, 0)
+    }
+
+    if (halted) {
+      haltedCallback(program)
+      return program
+    }
+  }
+
+  const step = () => {
     const rawInstruction = program[pointer]
 
     const a = getValue(program, program[pointer+1], getMode(rawInstruction, 0))
@@ -44,7 +63,18 @@ const intcode = (memory, input = null, outputCallback = console.log, debug = fal
 
       case INPUT:
         if (debug) debugLogger(pointer, program[pointer], program[pointer+1])
-        program[program[pointer+1]] = input
+
+        if (Array.isArray(input)) {
+          if (input.length === 0) {
+            waitingForInput = true
+            break
+          }
+
+          program[program[pointer+1]] = input.shift()
+        } else {
+          program[program[pointer+1]] = input
+        }
+
         pointer += 2
         break
 
@@ -78,12 +108,15 @@ const intcode = (memory, input = null, outputCallback = console.log, debug = fal
 
       case HALT:
         if (debug) debugLogger(pointer, program[pointer])
-        return program
+        halted = true
+        break
 
       default:
         throw new Error(`Unknown opcode at position ${pointer}: ${rawInstruction} (${program.toString()})`)
     }
   }
+
+  return run()
 }
 
 module.exports = {
