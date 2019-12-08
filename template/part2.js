@@ -1,3 +1,3 @@
-module.exports = input => { // eslint-disable-line no-unused-vars
+const part2 = module.exports = input => { // eslint-disable-line no-unused-vars
 
 }
