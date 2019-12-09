@@ -34,7 +34,7 @@ module.exports = class Intcode {
   constructor(config) {
     config = Object.assign({}, defaultConfig, config)
 
-    this.memory = ((typeof config.memory === 'string') ? parseMemoryFromString(config.memory) : config.memory).slice()
+    this.loadMemory(config.memory)
     this.inputQueues = config.inputQueues.slice()
     this.outputCallbacks = config.outputCallbacks.slice()
     this.haltCallbacks = config.haltCallbacks.slice()
@@ -46,11 +46,13 @@ module.exports = class Intcode {
     this.pointer = 0
     this.base = 0
 
-    this.extraMemory = {}
+    this.numInstructions = 0
   }
 
-  loadmemory(mem) {
-    this.memory = ((typeof mem === 'string') ? parseMemoryFromString(mem) : mem).slice()
+  loadMemory(mem) {
+    this.memory = {}
+    const copy = ((typeof mem === 'string') ? parseMemoryFromString(mem) : mem).slice()
+    copy.forEach((v, i) => this.memory[i] = v)
   }
 
   addInput(input) {
@@ -75,20 +77,23 @@ module.exports = class Intcode {
     }
   }
 
-  setMemory(address, value) {
-    if (this.memory[address]) {
-      this.memory[address] = value
-    }
+  setMemory(addressOrRelative, mode, value) {
+    switch (mode) {
+      case MODE_POSITION:
+        this.memory[addressOrRelative] = value
+        break
 
-    this.extraMemory[address] = value
+      case MODE_RELATIVE:
+        this.memory[addressOrRelative + this.base] = value
+        break
+
+      default:
+        throw new Error(`Unknown mode ${mode}`)
+    }
   }
 
   getMemory(address) {
-    if (this.memory[address]) {
-      return this.memory[address]
-    }
-
-    return this.extraMemory[address] || 0
+    return this.memory[address] || 0
   }
 
   getValue(addressOrValue, mode) {
@@ -130,16 +135,18 @@ module.exports = class Intcode {
     let allQueuesEmpty = true
     let value = null
 
+    this.numInstructions += 1
+
     switch (parseOpCode(rawInstruction)) {
       case ADD:
         if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2], this.memory[this.pointer+3])
-        this.setMemory(this.memory[this.pointer+3] + (getMode(rawInstruction, 2) === MODE_RELATIVE ? this.base : 0), a + b)
+        this.setMemory(this.memory[this.pointer+3], getMode(rawInstruction, 2), a + b)
         this.pointer += 4
         break
 
       case MULTIPLY:
         if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2], this.memory[this.pointer+3])
-        this.setMemory(this.memory[this.pointer+3] + (getMode(rawInstruction, 2) === MODE_RELATIVE ? this.base : 0), a * b)
+        this.setMemory(this.memory[this.pointer+3], getMode(rawInstruction, 2), a * b)
         this.pointer += 4
         break
 
@@ -158,7 +165,7 @@ module.exports = class Intcode {
 
         if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1])
 
-        this.setMemory(this.memory[this.pointer+1] + (getMode(rawInstruction, 0) === MODE_RELATIVE ? this.base : 0), value)
+        this.setMemory(this.memory[this.pointer+1], getMode(rawInstruction, 0), value)
 
         this.pointer += 2
         break
@@ -182,13 +189,13 @@ module.exports = class Intcode {
 
       case LESS_THAN:
         if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2], this.memory[this.pointer+3])
-        this.setMemory(this.memory[this.pointer+3] + (getMode(rawInstruction, 2) === MODE_RELATIVE ? this.base : 0), a < b ? 1 : 0)
+        this.setMemory(this.memory[this.pointer+3], getMode(rawInstruction, 2), a < b ? 1 : 0)
         this.pointer += 4
         break
 
       case EQUAL:
         if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2], this.memory[this.pointer+3])
-        this.setMemory(this.memory[this.pointer+3] + (getMode(rawInstruction, 2) === MODE_RELATIVE ? this.base : 0), a === b ? 1 : 0)
+        this.setMemory(this.memory[this.pointer+3], getMode(rawInstruction, 2), a === b ? 1 : 0)
         this.pointer += 4
         break
 
@@ -200,6 +207,8 @@ module.exports = class Intcode {
 
       case HALT:
         if (this.debug) debugLogger(this.pointer, this.memory[this.pointer])
+        if (this.debug) console.log('Total memory used:', Object.keys(this.memory).length)
+        if (this.debug) console.log('Instructions called:', this.numInstructions)
         this.halted = true
         break
 
