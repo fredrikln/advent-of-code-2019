@@ -2,7 +2,6 @@ const { debugLogger } = require('./debugger')
 const {
   parseMemoryFromString,
   parseOpCode,
-  getValue,
   getMode,
 
   ADD,
@@ -13,7 +12,12 @@ const {
   JUMP_IF_FALSE,
   LESS_THAN,
   EQUAL,
+  ADJUST_RELATIVE_BASE,
   HALT,
+
+  MODE_IMMEDIATE,
+  MODE_POSITION,
+  MODE_RELATIVE
 } = require('./intcode-utils')
 
 const defaultConfig = {
@@ -40,6 +44,9 @@ module.exports = class Intcode {
     this.waitingForInput = false
 
     this.pointer = 0
+    this.base = 0
+
+    this.extraMemory = {}
   }
 
   loadmemory(mem) {
@@ -68,6 +75,35 @@ module.exports = class Intcode {
     }
   }
 
+  setMemory(address, value) {
+    if (this.memory[address]) {
+      this.memory[address] = value
+    }
+
+    this.extraMemory[address] = value
+  }
+
+  getMemory(address) {
+    if (this.memory[address]) {
+      return this.memory[address]
+    }
+
+    return this.extraMemory[address] || 0
+  }
+
+  getValue(addressOrValue, mode) {
+    switch (mode) {
+      case MODE_POSITION:
+        return this.getMemory(addressOrValue)
+
+      case MODE_IMMEDIATE:
+        return addressOrValue
+
+      case MODE_RELATIVE:
+        return this.getMemory(this.base + addressOrValue)
+    }
+  }
+
   run() {
     while (!this.halted && !this.waitingForInput) {
       this.step()
@@ -88,9 +124,8 @@ module.exports = class Intcode {
 
   step() {
     const rawInstruction = this.memory[this.pointer]
-
-    const a = getValue(this.memory, this.memory[this.pointer+1], getMode(rawInstruction, 0))
-    const b = getValue(this.memory, this.memory[this.pointer+2], getMode(rawInstruction, 1))
+    const a = this.getValue(this.memory[this.pointer+1], getMode(rawInstruction, 0))
+    const b = this.getValue(this.memory[this.pointer+2], getMode(rawInstruction, 1))
 
     let allQueuesEmpty = true
     let value = null
@@ -98,13 +133,13 @@ module.exports = class Intcode {
     switch (parseOpCode(rawInstruction)) {
       case ADD:
         if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2], this.memory[this.pointer+3])
-        this.memory[this.memory[this.pointer+3]] = a + b
+        this.setMemory(this.memory[this.pointer+3] + (getMode(rawInstruction, 2) === MODE_RELATIVE ? this.base : 0), a + b)
         this.pointer += 4
         break
 
       case MULTIPLY:
         if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2], this.memory[this.pointer+3])
-        this.memory[this.memory[this.pointer+3]] = a * b
+        this.setMemory(this.memory[this.pointer+3] + (getMode(rawInstruction, 2) === MODE_RELATIVE ? this.base : 0), a * b)
         this.pointer += 4
         break
 
@@ -123,14 +158,13 @@ module.exports = class Intcode {
 
         if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1])
 
-        this.memory[this.memory[this.pointer+1]] = value
+        this.setMemory(this.memory[this.pointer+1] + (getMode(rawInstruction, 0) === MODE_RELATIVE ? this.base : 0), value)
 
         this.pointer += 2
         break
 
       case OUTPUT:
         if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1])
-
         this.outputCallbacks.forEach(callback => callback(a))
 
         this.pointer += 2
@@ -148,14 +182,20 @@ module.exports = class Intcode {
 
       case LESS_THAN:
         if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2], this.memory[this.pointer+3])
-        this.memory[this.memory[this.pointer+3]] = a < b ? 1 : 0
+        this.setMemory(this.memory[this.pointer+3] + (getMode(rawInstruction, 2) === MODE_RELATIVE ? this.base : 0), a < b ? 1 : 0)
         this.pointer += 4
         break
 
       case EQUAL:
         if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2], this.memory[this.pointer+3])
-        this.memory[this.memory[this.pointer+3]] = a === b ? 1 : 0
+        this.setMemory(this.memory[this.pointer+3] + (getMode(rawInstruction, 2) === MODE_RELATIVE ? this.base : 0), a === b ? 1 : 0)
         this.pointer += 4
+        break
+
+      case ADJUST_RELATIVE_BASE:
+        if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1])
+        this.base = this.base + a
+        this.pointer += 2
         break
 
       case HALT:
