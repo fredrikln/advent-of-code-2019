@@ -5,6 +5,7 @@ const {
 
   parseOpCode,
   printHeaders,
+  parseMemoryFromString,
 
   MAX_PARAMETERS,
 
@@ -16,6 +17,7 @@ const {
   JUMP_IF_FALSE,
   LESS_THAN,
   EQUAL,
+  ADJUST_RELATIVE_BASE,
   HALT
 } = require('./intcode-utils')
 
@@ -47,6 +49,10 @@ const debugLogger = (pointer, ...values) => {
 
 const printProgram = program => {
   let pointer = 0
+
+  if (typeof program === 'string') {
+    program = parseMemoryFromString(program)
+  }
 
   printHeaders()
 
@@ -92,6 +98,11 @@ const printProgram = program => {
       case EQUAL:
         debugLogger(pointer, program[pointer], program[pointer+1], program[pointer+2], program[pointer+3])
         pointer += 4
+        break
+
+      case ADJUST_RELATIVE_BASE:
+        debugLogger(pointer, program[pointer], program[pointer+1])
+        pointer += 2
         break
 
       case HALT:

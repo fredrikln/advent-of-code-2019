@@ -47,6 +47,7 @@ module.exports = class Intcode {
     this.base = 0
 
     this.numInstructions = 0
+    this.cyclesWastedWaitingforInput = 0
   }
 
   loadMemory(mem) {
@@ -117,6 +118,12 @@ module.exports = class Intcode {
     return this.memory
   }
 
+  printStats() {
+    console.log('Total memory slots used:', Object.keys(this.memory).length)
+    console.log('Instructions called:', this.numInstructions)
+    console.log('Cycles wasted waiting for input:', this.cyclesWastedWaitingforInput)
+  }
+
   run() {
     while (!this.halted && !this.waitingForInput) {
       this.step()
@@ -143,19 +150,19 @@ module.exports = class Intcode {
     let allQueuesEmpty = true
     let value = null
 
-    this.numInstructions += 1
-
     switch (parseOpCode(rawInstruction)) {
       case ADD:
         if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2], this.memory[this.pointer+3])
         this.setMemory(this.memory[this.pointer+3], getMode(rawInstruction, 2), a + b)
         this.pointer += 4
+        this.numInstructions += 1
         break
 
       case MULTIPLY:
         if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2], this.memory[this.pointer+3])
         this.setMemory(this.memory[this.pointer+3], getMode(rawInstruction, 2), a * b)
         this.pointer += 4
+        this.numInstructions += 1
         break
 
       case INPUT:
@@ -168,6 +175,7 @@ module.exports = class Intcode {
 
         if (allQueuesEmpty) {
           this.waitingForInput = true
+          this.cyclesWastedWaitingforInput += 1
           break
         }
 
@@ -176,6 +184,7 @@ module.exports = class Intcode {
         this.setMemory(this.memory[this.pointer+1], getMode(rawInstruction, 0), value)
 
         this.pointer += 2
+        this.numInstructions += 1
         break
 
       case OUTPUT:
@@ -183,41 +192,49 @@ module.exports = class Intcode {
         this.outputCallbacks.forEach(callback => callback(a))
 
         this.pointer += 2
+        this.numInstructions += 1
         break
 
       case JUMP_IF_TRUE:
         if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2])
         this.pointer = a !== 0 ? b : this.pointer+3
+        this.numInstructions += 1
         break
 
       case JUMP_IF_FALSE:
         if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2])
         this.pointer = a === 0 ? b : this.pointer+3
+        this.numInstructions += 1
         break
 
       case LESS_THAN:
         if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2], this.memory[this.pointer+3])
         this.setMemory(this.memory[this.pointer+3], getMode(rawInstruction, 2), a < b ? 1 : 0)
         this.pointer += 4
+        this.numInstructions += 1
         break
 
       case EQUAL:
         if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2], this.memory[this.pointer+3])
         this.setMemory(this.memory[this.pointer+3], getMode(rawInstruction, 2), a === b ? 1 : 0)
         this.pointer += 4
+        this.numInstructions += 1
         break
 
       case ADJUST_RELATIVE_BASE:
         if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1])
         this.base = this.base + a
         this.pointer += 2
+        this.numInstructions += 1
         break
 
       case HALT:
         if (this.debug) debugLogger(this.pointer, this.memory[this.pointer])
-        if (this.debug) console.log('Total memory used:', Object.keys(this.memory).length)
+        if (this.debug) console.log('Total memory slots used:', Object.keys(this.memory).length)
         if (this.debug) console.log('Instructions called:', this.numInstructions)
+        if (this.debug) console.log('Cycles wasted waiting for input:', this.cyclesWastedWaitingforInput)
         this.halted = true
+        this.numInstructions += 1
         break
 
       default:
