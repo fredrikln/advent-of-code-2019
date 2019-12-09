@@ -6,7 +6,7 @@ const data = input[0]
 
 const part1 = require('./part1')
 const output = part1(data, 12, 2)
-console.log('Part 1:', output.toString(), output[0])
+console.log('Part 1:', output[0])
 
 console.log()
 

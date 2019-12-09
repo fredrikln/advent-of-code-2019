@@ -1,7 +1,10 @@
-const { intcode, parseMemoryFromString } = require('../utils/intcode')
+const Intcode = require('../utils/intcode2')
 
 module.exports = (data, input, callback) => {
-  const memory = parseMemoryFromString(data)
+  const computer = new Intcode({ memory: data })
+  computer.addInput([input])
+  computer.addOutput(callback)
+  computer.run()
 
-  return intcode(memory, input, callback)
+  return Object.values(computer.dumpMemory())
 }

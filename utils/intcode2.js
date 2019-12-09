@@ -77,6 +77,10 @@ module.exports = class Intcode {
     }
   }
 
+  addHaltCallback(callback) {
+    this.haltCallbacks.push(callback)
+  }
+
   setMemory(addressOrRelative, mode, value) {
     switch (mode) {
       case MODE_POSITION:
@@ -107,6 +111,10 @@ module.exports = class Intcode {
       case MODE_RELATIVE:
         return this.getMemory(this.base + addressOrValue)
     }
+  }
+
+  dumpMemory() {
+    return this.memory
   }
 
   run() {

@@ -4,15 +4,12 @@ const part1 = require('./part1') // eslint-disable-line no-unused-vars
 const part2 = require('./part2') // eslint-disable-line no-unused-vars
 
 const {
-  intcode, parseOpCode, getMode, getValue, parseMemoryFromString
+  parseOpCode, getMode, getValue
 } = require('../utils/intcode')
+const Intcode = require('../utils/intcode2')
 
 describe('Day 5', function() {
   describe('Part 1', function() {
-    it('3,0,4,0,99', function() {
-      // assert.equal()
-    })
-
     it('parseOpCode', function() {
       assert.equal(parseOpCode(2), 2)
       assert.equal(parseOpCode(1002), 2)
@@ -56,15 +53,17 @@ describe('Day 5', function() {
     })
 
     it('1002,4,3,4,33', function() {
-      const input = parseMemoryFromString('1002,4,3,4,33')
-      const output = intcode(input)
+      const computer = new Intcode({ memory: '1002,4,3,4,33' })
+      computer.run()
+      const output = Object.values(computer.dumpMemory())
 
       assert.equal(output.toString(), '1002,4,3,4,99')
     })
 
     it('1101,100,-1,4,0', function() {
-      const input = parseMemoryFromString('1101,100,-1,4,0')
-      const output = intcode(input)
+      const computer = new Intcode({ memory: '1101,100,-1,4,0' })
+      computer.run()
+      const output = Object.values(computer.dumpMemory())
 
       assert.equal(output.toString(), '1101,100,-1,4,99')
     })
@@ -73,8 +72,11 @@ describe('Day 5', function() {
       let callbackValue
       const callback = val => callbackValue = val
 
-      const input = parseMemoryFromString('3,0,4,0,99')
-      const output = intcode(input, 50, callback)
+      const computer = new Intcode({ memory: '3,0,4,0,99' })
+      computer.addInput([50])
+      computer.addOutput(callback)
+      computer.run()
+      const output = Object.values(computer.dumpMemory())
 
       assert.equal(output.toString(), '50,0,4,0,99')
       assert.equal(callbackValue, 50)
@@ -86,11 +88,16 @@ describe('Day 5', function() {
       let callbackValue
       const callback = val => callbackValue = val
 
-      const input = parseMemoryFromString('3,9,8,9,10,9,4,9,99,-1,8')
-      intcode(input, 1, callback)
+      const computer = new Intcode({ memory: '3,9,8,9,10,9,4,9,99,-1,8' })
+      computer.addInput([1])
+      computer.addOutput(callback)
+      computer.run()
       assert.equal(callbackValue, 0)
 
-      intcode(input, 8, callback)
+      const computer2 = new Intcode({ memory: '3,9,8,9,10,9,4,9,99,-1,8' })
+      computer2.addInput([8])
+      computer2.addOutput(callback)
+      computer2.run()
       assert.equal(callbackValue, 1)
     })
 
@@ -98,11 +105,16 @@ describe('Day 5', function() {
       let callbackValue
       const callback = val => callbackValue = val
 
-      const input = parseMemoryFromString('3,9,7,9,10,9,4,9,99,-1,8')
-      intcode(input, 1, callback)
+      const computer = new Intcode({ memory: '3,9,7,9,10,9,4,9,99,-1,8' })
+      computer.addInput([1])
+      computer.addOutput(callback)
+      computer.run()
       assert.equal(callbackValue, 1)
 
-      intcode(input, 8, callback)
+      const computer2 = new Intcode({ memory: '3,9,7,9,10,9,4,9,99,-1,8' })
+      computer2.addInput([8])
+      computer2.addOutput(callback)
+      computer2.run()
       assert.equal(callbackValue, 0)
     })
 
@@ -110,11 +122,16 @@ describe('Day 5', function() {
       let callbackValue
       const callback = val => callbackValue = val
 
-      const input = parseMemoryFromString('3,3,1108,-1,8,3,4,3,99')
-      intcode(input, 1, callback)
+      const computer = new Intcode({ memory: '3,3,1108,-1,8,3,4,3,99' })
+      computer.addInput([1])
+      computer.addOutput(callback)
+      computer.run()
       assert.equal(callbackValue, 0)
 
-      intcode(input, 8, callback)
+      const computer2 = new Intcode({ memory: '3,3,1108,-1,8,3,4,3,99' })
+      computer2.addInput([8])
+      computer2.addOutput(callback)
+      computer2.run()
       assert.equal(callbackValue, 1)
     })
 
@@ -122,11 +139,16 @@ describe('Day 5', function() {
       let callbackValue
       const callback = val => callbackValue = val
 
-      const input = parseMemoryFromString('3,3,1107,-1,8,3,4,3,99')
-      intcode(input, 1, callback)
+      const computer = new Intcode({ memory: '3,3,1107,-1,8,3,4,3,99' })
+      computer.addInput([1])
+      computer.addOutput(callback)
+      computer.run()
       assert.equal(callbackValue, 1)
 
-      intcode(input, 8, callback)
+      const computer2 = new Intcode({ memory: '3,3,1107,-1,8,3,4,3,99' })
+      computer2.addInput([8])
+      computer2.addOutput(callback)
+      computer2.run()
       assert.equal(callbackValue, 0)
     })
 
@@ -134,11 +156,16 @@ describe('Day 5', function() {
       let callbackValue
       const callback = val => callbackValue = val
 
-      const input = parseMemoryFromString('3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9')
-      intcode(input, 1, callback)
+      const computer = new Intcode({ memory: '3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9' })
+      computer.addInput([1])
+      computer.addOutput(callback)
+      computer.run()
       assert.equal(callbackValue, 1)
 
-      intcode(input, 0, callback)
+      const computer2 = new Intcode({ memory: '3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9' })
+      computer2.addInput([0])
+      computer2.addOutput(callback)
+      computer2.run()
       assert.equal(callbackValue, 0)
     })
 
@@ -146,11 +173,16 @@ describe('Day 5', function() {
       let callbackValue
       const callback = val => callbackValue = val
 
-      const input = parseMemoryFromString('3,3,1105,-1,9,1101,0,0,12,4,12,99,1')
-      intcode(input, 1, callback)
+      const computer = new Intcode({ memory: '3,3,1105,-1,9,1101,0,0,12,4,12,99,1' })
+      computer.addInput([1])
+      computer.addOutput(callback)
+      computer.run()
       assert.equal(callbackValue, 1)
 
-      intcode(input, 0, callback)
+      const computer2 = new Intcode({ memory: '3,3,1105,-1,9,1101,0,0,12,4,12,99,1' })
+      computer2.addInput([0])
+      computer2.addOutput(callback)
+      computer2.run()
       assert.equal(callbackValue, 0)
     })
 
@@ -159,14 +191,22 @@ describe('Day 5', function() {
       let callbackValue
       const callback = val => callbackValue = val
 
-      const input = parseMemoryFromString('3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99')
-      intcode(input, 1, callback)
+      const computer = new Intcode({ memory: '3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99' })
+      computer.addInput([1])
+      computer.addOutput(callback)
+      computer.run()
       assert.equal(callbackValue, 999)
 
-      intcode(input, 8, callback)
+      const computer2 = new Intcode({ memory: '3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99' })
+      computer2.addInput([8])
+      computer2.addOutput(callback)
+      computer2.run()
       assert.equal(callbackValue, 1000)
 
-      intcode(input, 18, callback)
+      const computer3 = new Intcode({ memory: '3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99' })
+      computer3.addInput([18])
+      computer3.addOutput(callback)
+      computer3.run()
       assert.equal(callbackValue, 1001)
     })
   })
