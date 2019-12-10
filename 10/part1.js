@@ -18,7 +18,12 @@ const rad2deg = rad => rad / (Math.PI/180)
 
 const numObservableAsteroids = (map, x, y) => {
   const angles = new Set()
-  const asteroids = Object.keys(map).map(key => key.split(',').map(v => parseInt(v, 10)))
+  const asteroids = Object.keys(map)
+    .map(key => key.split(',')
+      .map(v =>
+        parseInt(v, 10)
+      )
+    )
 
   for (const asteroid of asteroids) {
     if (asteroid[0] === x && asteroid[1] === y) continue
@@ -34,7 +39,12 @@ const numObservableAsteroids = (map, x, y) => {
 const part1 = module.exports = input => { // eslint-disable-line no-unused-vars
   const map = parseMap(input)
 
-  const asteroids = Object.keys(map).map(key => key.split(',').map(v => parseInt(v, 10)))
+  const asteroids = Object.keys(map)
+    .map(key =>
+      key.split(',').map(
+        v => parseInt(v, 10)
+      )
+    )
 
   let maxObservable = 0
   let maxObservableAsteroid = null

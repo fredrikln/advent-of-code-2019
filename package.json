@@ -8,10 +8,12 @@
     "chai": "^4.2.0",
     "eslint": "^6.7.2",
     "mocha": "^6.2.2",
+    "nyc": "^14.1.1",
     "pre-commit": "^1.2.2"
   },
   "scripts": {
-    "test": "mocha --ignore template/*.js **/tests.js",
+    "test": "mocha **/tests.js",
+    "test:coverage": "nyc --reporter=html mocha **/tests.js",
     "lint": "eslint .",
     "lint:fix": "eslint --fix ."
   },

@@ -7,7 +7,15 @@ const getDistance = (a, b) => Math.sqrt(Math.pow(a[0]-b[0], 2) + Math.pow(a[1]-b
 const part2 = module.exports = (input, x, y, vaporizedIndex) => { // eslint-disable-line no-unused-vars
   const map = parseMap(input)
 
-  const asteroids = Object.keys(map).map(key => key.split(',').map(v => parseInt(v, 10))).filter(a => !(a[0] === x && a[1] === y))
+  const asteroids = Object.keys(map)
+    .map(key =>
+      key.split(',')
+        .map(v =>
+          parseInt(v, 10)
+        )
+    )
+    .filter(a => !(a[0] === x && a[1] === y))
+
   const angles = {}
   asteroids.forEach(a => {
     const angle = getAngle(a[0] - x, a[1] - y)
@@ -23,7 +31,8 @@ const part2 = module.exports = (input, x, y, vaporizedIndex) => { // eslint-disa
 
   const vaporizations = []
 
-  let angleKeys = Object.keys(angles).sort((a, b) => (rad2deg(a) < rad2deg(b) ? -1 : 1))
+  let angleKeys = Object.keys(angles)
+    .sort((a, b) => (rad2deg(a) < rad2deg(b) ? -1 : 1))
 
   let index = angleKeys.indexOf(deg2rad(-90).toString())
 

@@ -31,6 +31,13 @@ describe('Day 8', function() {
         0, 2, 2, 2, 0, 0, 0, 0, 0, 0
       ])
     })
+
+    it('Test case 4', function() {
+      assert.equal(part1('111111000000', 3, 2), 6*0) // 6 ones, 0 twos
+      assert.equal(part1('000001111112', 3, 2), 5*1) // 5 ones, 1 two
+      assert.equal(part1('000001222111', 3, 2), 3*3) // 3 ones, 3 twos
+      assert.equal(part1('12120000', 2, 2), 2*2) // 2 ones, 2 twos
+    })
   })
 
   describe('Part 2', function() {

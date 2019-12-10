@@ -20,10 +20,10 @@ const countOccurences = input => {
   return out
 }
 
-const part1 = module.exports = input => { // eslint-disable-line no-unused-vars
+const part1 = module.exports = (input, cols = 25, rows = 6) => { // eslint-disable-line no-unused-vars
   let leastZeroes = Number.MAX_VALUE
   let leastZeroesLayer = -1
-  const layers = getLayers(input, 25, 6)
+  const layers = getLayers(input, cols, rows)
 
   for (let layer of layers) {
     layer = countOccurences(layer)
