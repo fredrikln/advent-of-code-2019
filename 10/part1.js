@@ -9,7 +9,7 @@ const parseMap = map => {
 }
 
 const getAngle = (x, y) => {
-  const angle = (Math.atan2(y, x) + Math.PI * 2) % (Math.PI * 2)
+  const angle = Math.atan2(y, x)
 
   return angle
 }

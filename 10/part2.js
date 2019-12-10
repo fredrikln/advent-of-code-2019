@@ -23,8 +23,24 @@ const part2 = module.exports = (input, x, y, vaporizedIndex) => { // eslint-disa
 
   const vaporizations = []
 
-  const angleKeys = Object.keys(angles).sort((a, b) => (rad2deg(a) < rad2deg(b) ? -1 : 1))
-  let index = angleKeys.indexOf(deg2rad(270).toString())
+  let angleKeys = Object.keys(angles).sort((a, b) => (rad2deg(a) < rad2deg(b) ? -1 : 1))
+
+  let index = angleKeys.indexOf(deg2rad(-90).toString())
+
+  // const height = input.split('\n').length
+  // const width = input.split('\n')[0].length
+
+  // const drawMap = () => {
+  //   const out = input.split('\n')
+
+  //   vaporizations.forEach(v => {
+  //     out[v[1]] = out[v[1]].substring(0, v[0]) + '.' + out[v[1]].substring(v[0] + 1)
+  //   })
+  //   out[y] = out[y].substring(0, x) + 'O' + out[y].substring(x + 1)
+
+  //   process.stdout.write('\033c')
+  //   console.log(out)
+  // }
 
   const step = () => {
     const angle = angleKeys[index]
@@ -34,11 +50,26 @@ const part2 = module.exports = (input, x, y, vaporizedIndex) => { // eslint-disa
       const [asteroid] = angles[angle].splice(0, 1)
       vaporizations.push(asteroid)
 
-      if (angles[angle].length === 0) delete angles[angle]
+      if (angles[angle].length === 0) {
+        angleKeys = [...angleKeys.slice(0, index), ...angleKeys.slice(index + 1)]
+        delete angles[angle]
+        index--
+      }
     }
 
     index = (index + 1) % angleKeys.length
   }
+
+  // const takeStep = () => {
+  //   if (Object.keys(angles).length > 0) {
+  //     step()
+  //     drawMap()
+
+  //     setTimeout(takeStep, 16.6667)
+  //   }
+  // }
+
+  // takeStep()
 
   while (Object.keys(angles).length > 0) {
     step()

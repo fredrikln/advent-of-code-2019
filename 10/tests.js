@@ -49,7 +49,7 @@ describe('Day 10', function() {
 
     it('calculates angles', function() {
       // [0,0] -> [0,-1]
-      assert.equal(getAngle(0, -1), deg2rad(270))
+      assert.equal(getAngle(0, -1), deg2rad(-90))
 
       // [0,0] -> [1,0]
       assert.equal(getAngle(1, 0), deg2rad(0))
