@@ -30,6 +30,9 @@ const defaultConfig = {
   debug: false
 }
 
+// Stolen from https://github.com/caderek/aoc2019/blob/master/src/day11/computer.ts
+const unblock = () => new Promise(setImmediate) // eslint-disable-line no-undef
+
 module.exports = class Intcode {
   constructor(config) {
     config = Object.assign({}, defaultConfig, config)
@@ -39,9 +42,6 @@ module.exports = class Intcode {
     this.outputCallbacks = config.outputCallbacks.slice()
     this.haltCallbacks = config.haltCallbacks.slice()
     this.debug = config.debug
-
-    this.halted = false
-    this.waitingForInput = false
 
     this.pointer = 0
     this.base = 0
@@ -124,121 +124,110 @@ module.exports = class Intcode {
     console.log('Cycles wasted waiting for input:', this.cyclesWastedWaitingforInput)
   }
 
-  run() {
-    while (!this.halted && !this.waitingForInput) {
-      this.step()
-    }
+  async run() {
+    const run = true
 
-    if (this.waitingForInput) {
-      setTimeout(() => {
-        this.waitingForInput = false
-        this.run()
-      }, 0)
-    }
+    while (run) {
+      const rawInstruction = this.memory[this.pointer]
+      const a = this.getValue(this.memory[this.pointer+1], getMode(rawInstruction, 0))
+      const b = this.getValue(this.memory[this.pointer+2], getMode(rawInstruction, 1))
 
-    if (this.halted) {
-      this.haltCallbacks.forEach(callback => callback(this.memory))
-      return this.memory
-    }
-  }
+      let allQueuesEmpty = true
+      let value = null
 
-  step() {
-    const rawInstruction = this.memory[this.pointer]
-    const a = this.getValue(this.memory[this.pointer+1], getMode(rawInstruction, 0))
-    const b = this.getValue(this.memory[this.pointer+2], getMode(rawInstruction, 1))
-
-    let allQueuesEmpty = true
-    let value = null
-
-    switch (parseOpCode(rawInstruction)) {
-      case ADD:
-        if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2], this.memory[this.pointer+3])
-        this.setMemory(this.memory[this.pointer+3], getMode(rawInstruction, 2), a + b)
-        this.pointer += 4
-        this.numInstructions += 1
-        break
-
-      case MULTIPLY:
-        if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2], this.memory[this.pointer+3])
-        this.setMemory(this.memory[this.pointer+3], getMode(rawInstruction, 2), a * b)
-        this.pointer += 4
-        this.numInstructions += 1
-        break
-
-      case INPUT:
-        for (const queue of this.inputQueues) {
-          if (queue.length === 0) continue
-          allQueuesEmpty = false
-          value = queue.shift()
+      switch (parseOpCode(rawInstruction)) {
+        case ADD:
+          if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2], this.memory[this.pointer+3])
+          this.setMemory(this.memory[this.pointer+3], getMode(rawInstruction, 2), a + b)
+          this.pointer += 4
+          this.numInstructions += 1
           break
-        }
 
-        if (allQueuesEmpty) {
-          this.waitingForInput = true
-          this.cyclesWastedWaitingforInput += 1
+        case MULTIPLY:
+          if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2], this.memory[this.pointer+3])
+          this.setMemory(this.memory[this.pointer+3], getMode(rawInstruction, 2), a * b)
+          this.pointer += 4
+          this.numInstructions += 1
           break
-        }
 
-        if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1])
+        case INPUT:
+          for (const queue of this.inputQueues) {
+            if (queue.length === 0) continue
+            allQueuesEmpty = false
+            value = queue.shift()
+            break
+          }
 
-        this.setMemory(this.memory[this.pointer+1], getMode(rawInstruction, 0), value)
+          if (allQueuesEmpty) {
+            // Waits for next tick to run, some other process should have jumped in and added something to input
+            await unblock()
 
-        this.pointer += 2
-        this.numInstructions += 1
-        break
+            this.cyclesWastedWaitingforInput += 1
+            break
+          }
 
-      case OUTPUT:
-        if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1])
-        this.outputCallbacks.forEach(callback => callback(a))
+          if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1])
 
-        this.pointer += 2
-        this.numInstructions += 1
-        break
+          this.setMemory(this.memory[this.pointer+1], getMode(rawInstruction, 0), value)
 
-      case JUMP_IF_TRUE:
-        if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2])
-        this.pointer = a !== 0 ? b : this.pointer+3
-        this.numInstructions += 1
-        break
+          this.pointer += 2
+          this.numInstructions += 1
+          break
 
-      case JUMP_IF_FALSE:
-        if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2])
-        this.pointer = a === 0 ? b : this.pointer+3
-        this.numInstructions += 1
-        break
+        case OUTPUT:
+          if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1])
+          this.outputCallbacks.forEach(callback => callback(a))
 
-      case LESS_THAN:
-        if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2], this.memory[this.pointer+3])
-        this.setMemory(this.memory[this.pointer+3], getMode(rawInstruction, 2), a < b ? 1 : 0)
-        this.pointer += 4
-        this.numInstructions += 1
-        break
+          this.pointer += 2
+          this.numInstructions += 1
+          break
 
-      case EQUAL:
-        if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2], this.memory[this.pointer+3])
-        this.setMemory(this.memory[this.pointer+3], getMode(rawInstruction, 2), a === b ? 1 : 0)
-        this.pointer += 4
-        this.numInstructions += 1
-        break
+        case JUMP_IF_TRUE:
+          if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2])
+          this.pointer = a !== 0 ? b : this.pointer+3
+          this.numInstructions += 1
+          break
 
-      case ADJUST_RELATIVE_BASE:
-        if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1])
-        this.base = this.base + a
-        this.pointer += 2
-        this.numInstructions += 1
-        break
+        case JUMP_IF_FALSE:
+          if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2])
+          this.pointer = a === 0 ? b : this.pointer+3
+          this.numInstructions += 1
+          break
 
-      case HALT:
-        if (this.debug) debugLogger(this.pointer, this.memory[this.pointer])
-        if (this.debug) console.log('Total memory slots used:', Object.keys(this.memory).length)
-        if (this.debug) console.log('Instructions called:', this.numInstructions)
-        if (this.debug) console.log('Cycles wasted waiting for input:', this.cyclesWastedWaitingforInput)
-        this.halted = true
-        this.numInstructions += 1
-        break
+        case LESS_THAN:
+          if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2], this.memory[this.pointer+3])
+          this.setMemory(this.memory[this.pointer+3], getMode(rawInstruction, 2), a < b ? 1 : 0)
+          this.pointer += 4
+          this.numInstructions += 1
+          break
 
-      default:
-        throw new Error(`Unknown opcode at position ${this.pointer}: ${rawInstruction} (${this.memory.toString()})`)
+        case EQUAL:
+          if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1], this.memory[this.pointer+2], this.memory[this.pointer+3])
+          this.setMemory(this.memory[this.pointer+3], getMode(rawInstruction, 2), a === b ? 1 : 0)
+          this.pointer += 4
+          this.numInstructions += 1
+          break
+
+        case ADJUST_RELATIVE_BASE:
+          if (this.debug) debugLogger(this.pointer, this.memory[this.pointer], this.memory[this.pointer+1])
+          this.base = this.base + a
+          this.pointer += 2
+          this.numInstructions += 1
+          break
+
+        case HALT:
+          if (this.debug) debugLogger(this.pointer, this.memory[this.pointer])
+          if (this.debug) console.log('Total memory slots used:', Object.keys(this.memory).length)
+          if (this.debug) console.log('Instructions called:', this.numInstructions)
+          if (this.debug) console.log('Cycles wasted waiting for input:', this.cyclesWastedWaitingforInput)
+          this.numInstructions += 1
+
+          this.haltCallbacks.forEach(callback => callback(this.memory))
+          return this.memory
+
+        default:
+          throw new Error(`Unknown opcode at position ${this.pointer}: ${rawInstruction} (${this.memory.toString()})`)
+      }
     }
   }
 }
