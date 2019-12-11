@@ -5,10 +5,10 @@ const part2 = require('./part2') // eslint-disable-line no-unused-vars
 
 describe('Day X', function() {
   describe('Part 1', function() {
-    it('Test case 1')
+    // it('Test case 1')
   })
 
   describe('Part 2', function() {
-    it('Test case 1')
+    // it('Test case 1')
   })
 })

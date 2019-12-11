@@ -43,7 +43,7 @@ class Robot {
   constructor({
     input = [],
     output = [],
-    haltedCallback = () => console.log('halted'),
+    haltedCallback = (() => {}),
     print = false
   }) {
     this.input = input
