@@ -21,10 +21,11 @@ const runConfiguration = (program, phaseSettings, toThrusters = console.log) => 
   computer4.addInput([phaseSettings[3]])
   computer4.addInput(computer3)
 
-  const computer5 = new Intcode({ memory: program, haltCallbacks: [() => toThrusters(output)]})
+  const computer5 = new Intcode({ memory: program })
   computer5.addInput([phaseSettings[4]])
   computer5.addInput(computer4)
   computer5.addOutput(val => output = val)
+  computer5.addHaltCallback(() => toThrusters(output))
 
   computer1.addInput(computer5)
 
