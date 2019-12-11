@@ -22,6 +22,7 @@ const generateImage = (layers, cols, rows) => {
   return out.join('')
 }
 
+/* istanbul ignore next */
 const printImage = (image, cols, rows) => {
   for (let i = 0; i < rows; i++) {
     let row = ''
@@ -33,9 +34,9 @@ const printImage = (image, cols, rows) => {
   }
 }
 
-const part2 = module.exports = input => { // eslint-disable-line no-unused-vars
-  const layers = getLayers(input, 25, 6)
-  const image = generateImage(layers, 25, 6)
+const part2 = module.exports = (input, width = 25, height = 6) => { // eslint-disable-line no-unused-vars
+  const layers = getLayers(input, width, height)
+  const image = generateImage(layers, width, height)
 
   return image
 }

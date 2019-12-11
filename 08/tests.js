@@ -49,5 +49,12 @@ describe('Day 8', function() {
       assert.equal(image.length, 4)
       assert.equal(image, '0110')
     })
+
+    it('Test case 2', function() {
+      const image = part2('0222112222120000', 2, 2)
+
+      assert.equal(image.length, 4)
+      assert.equal(image, '0110')
+    })
   })
 })

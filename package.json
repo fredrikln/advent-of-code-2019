@@ -12,8 +12,8 @@
     "pre-commit": "^1.2.2"
   },
   "scripts": {
-    "test": "mocha **/tests.js",
-    "test:coverage": "nyc --reporter=html mocha **/tests.js",
+    "test": "mocha './{01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,utils}/tests.js'",
+    "test:coverage": "nyc --reporter=html mocha './{01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,utils}/tests.js'",
     "lint": "eslint .",
     "lint:fix": "eslint --fix ."
   },

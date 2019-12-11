@@ -1,7 +1,8 @@
 const Intcode = require('../utils/intcode2')
 
-const { Robot } = require('./part1')
+const Robot = require('./robot')
 
+/* istanbul ignore next */
 const part2 = module.exports = input => { // eslint-disable-line no-unused-vars
   const computerInput = []
   const robotInput = []

@@ -21,6 +21,7 @@ const {
   HALT
 } = require('./intcode-utils')
 
+/* istanbul ignore next */
 const debugLogger = (pointer, ...values) => {
   values = values.concat(Array(MAX_PARAMETERS + 1 - values.length).fill(''))
 
@@ -47,6 +48,7 @@ const debugLogger = (pointer, ...values) => {
   )
 }
 
+/* istanbul ignore next */
 const printProgram = program => {
   let pointer = 0
 

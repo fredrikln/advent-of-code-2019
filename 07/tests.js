@@ -1,6 +1,7 @@
 const { assert } = require('chai') // eslint-disable-line no-unused-vars
 
-const { parseMemoryFromString, intcode } = require('../utils/intcode')
+const { parseMemoryFromString } = require('../utils/intcode')
+const Intcode = require('../utils/intcode2')
 
 const part1 = require('./part1') // eslint-disable-line no-unused-vars
 const { runConfiguration } = require('./part1')
@@ -55,10 +56,13 @@ describe('Day 7', function() {
 
       const oneInput = []
 
-      intcode(input, oneInput, val => {
+      const computer = new Intcode({ memory: input })
+      computer.addInput(oneInput)
+      computer.addOutput(val => {
         assert.equal(val, 50)
         done()
       })
+      computer.run()
 
       setTimeout(function() {
         oneInput.push(50)
