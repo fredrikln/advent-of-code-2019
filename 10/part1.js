@@ -2,7 +2,7 @@ const parseMap = map => {
   const coords = {}
 
   map.trim().split('\n').forEach((row, y) => row.trim().split('').forEach((col, x) => {
-    if (col === '#') coords[`${x},${y}`] = true
+    if (col === '#') coords[[x, y]] = true
   }))
 
   return coords

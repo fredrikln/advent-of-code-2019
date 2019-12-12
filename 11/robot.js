@@ -29,8 +29,8 @@ const drawGrid = grid => {
   for (let y = minMax[2]; y <= minMax[3]; y++) {
 
     for (let x = minMax[0]; x <= minMax[1]; x++) {
-      if (grid[`${x},${y}`] !== undefined) {
-        out += grid[`${x},${y}`] === 1 ? '#' : ' '
+      if (grid[[x, y]] !== undefined) {
+        out += grid[[x, y]] === 1 ? '#' : ' '
       } else out += ' '
     }
     out += '\n'
@@ -59,11 +59,11 @@ class Robot {
   }
 
   getPanel(x, y) {
-    return this.grid[`${x},${y}`] || 0
+    return this.grid[[x, y]] || 0
   }
 
   paintPanel(x, y, color) {
-    this.grid[`${x},${y}`] = color
+    this.grid[[x, y]] = color
   }
 
   turnLeft() {

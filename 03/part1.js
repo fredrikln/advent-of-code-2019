@@ -2,7 +2,7 @@ module.exports = wires => {
   const grid = {}
 
   const markGrid = (wire, x, y, steps) => {
-    const key = `${x},${y}`
+    const key = [x, y]
 
     if (!grid[key]) grid[key] = {}
 
