@@ -1,20 +1,5 @@
 const { parseInput, step } = require('./part1')
-
-// Looked these up on wikipedia
-const gcd = (a, b) => {
-  if (b > a) [a, b] = [b, a]
-
-  while (b != 0) {
-    const t = b
-    b = a % b
-    a = t
-  }
-
-  return a
-}
-
-// Looked these up on wikipedia
-const lcm = (a, b) => Math.abs(a * b) / gcd(a, b)
+const { lcm } = require('../utils')
 
 const findCycle = moons => {
   const moonsX = new Set()
@@ -57,18 +42,11 @@ const findCycle = moons => {
 
   // Once I had the unique X Y and Z cycles I had to find out when they meet
   // Also a new concept for me, I saw someone mention least common multiple
-  const cycles = [
-    moonsX.size, moonsY.size, moonsZ.size
-  ]
-
-  // Sorting these because using the larger number caused JavaScripts number to go wonky
-  const lcms = [
-    lcm(cycles[0], cycles[1]),
-    lcm(cycles[1], cycles[2]),
-    lcm(cycles[0], cycles[2])
-  ].sort((a, b) => (a < b ? -1 : 1))
-
-  return lcm(lcms[1], lcms[0])
+  return Math.round(lcm(
+    moonsX.size,
+    moonsY.size,
+    moonsZ.size
+  ))
 }
 
 const part2 = module.exports = input => { // eslint-disable-line no-unused-vars
