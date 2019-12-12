@@ -9,7 +9,26 @@ const takeSteps = part1.takeSteps
 const calculateSystemEnergy = part1.calculateSystemEnergy
 const findCycle = part2.findCycle
 
+const { gcd, lcm } = require('../utils')
+
 describe('Day 12', function() {
+  describe('Utils', function() {
+    it('calculates GCD', function() {
+      assert.equal(gcd(3, 6), 3)
+      assert.equal(gcd(3, 6, 18), 3)
+      assert.equal(gcd(3, 6, 5), 1)
+      assert.equal(gcd(3, 6, 9, 11), 1)
+      assert.equal(gcd(3, 15, 9, 6), 3)
+    })
+
+    it('calculates LCM', function() {
+      assert.equal(lcm(4, 7), 28)
+      assert.equal(lcm(3, 7), 21)
+      assert.equal(lcm(3, 7, 11), 231)
+      assert.equal(lcm(5, 125, 25), 125)
+    })
+  })
+
   describe('Part 1', function() {
     it('parses input', function() {
       const input = [

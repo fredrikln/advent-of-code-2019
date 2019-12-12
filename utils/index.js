@@ -9,20 +9,12 @@ const readInput = file => fs.readFileSync(file, 'utf-8')
 
 
 // Looked these up on wikipedia
-const gcd = (a, ...b) => {
-  if (b.length > 1) {
-    return gcd(
-      a,
-      gcd(
-        b[0],
-        ...b.slice(1)
-      )
-    )
+const gcd = (...vals) => {
+  if (vals.length > 2) {
+    return vals.slice(1).reduce((acc, next) => gcd(acc, next), vals[0])
   }
 
-  if (Array.isArray(b)) b = b[0]
-
-  if (b > a) [a, b] = [b, a]
+  let [a, b] = vals
 
   while (b != 0) {
     const t = b
@@ -34,18 +26,15 @@ const gcd = (a, ...b) => {
 }
 
 // Looked these up on wikipedia
-const lcm = (a, ...b) => {
-  if (b.length > 1) {
-    return lcm(
-      a,
-      lcm(
-        b[0],
-        ...b.slice(1)
-      )
-    )
+const lcm = (...vals) => {
+
+  if (vals.length > 2) {
+    return vals.slice(1).reduce((acc, next) => lcm(acc, next), vals[0])
   }
 
-  return Math.abs(a * b[0]) / gcd(a, b[0])
+  const [a, b] = vals
+
+  return Math.abs(a * b) / gcd(a, b)
 }
 
 module.exports = {
