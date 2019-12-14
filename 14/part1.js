@@ -1,98 +1,74 @@
-const parseIngredient = ingredient => {
-  const [count, name] = ingredient.split(' ')
 
-  return [name, parseInt(count, 10)]
-}
+// const parseIngredient = ingredient => {
+//   const [count, name] = ingredient.split(' ')
 
-const parseReactions = reactions => reactions
-  .map(reaction => reaction.split(' => ')
-    .map(r => r.split(', ')))
-  .map(([source, target]) => {
-    target = parseIngredient(target[0])
-    source = source.map(ingredient => parseIngredient(ingredient))
+//   return [name, parseInt(count, 10)]
+// }
 
-    return [target, source]
-  })
+// const parseReactions = reactions => reactions
+//   .map(reaction => reaction.split(' => ')
+//     .map(r => r.split(', ')))
+//   .map(([source, target]) => {
+//     target = parseIngredient(target[0])
+//     source = source.map(ingredient => parseIngredient(ingredient))
 
-const react = (solution, reactions) => {
-  const out = Object.assign({}, solution)
-  const waste = {}
+//     return [target, source]
+//   })
 
-  let counter = 0
-  while (Object.keys(out).filter(k => k !== 'ORE').length > 0) {
-    let didReact = false
-    for (const element of Object.keys(out)) {
-      if (element === 'ORE') continue
+// const calculateOre = reactions => {
+//   const parsedReactions = parseReactions(reactions)
 
-      const elementCount = out[element]
+//   const react = solution => {
+//     const out = []
 
-      const reaction = reactions.find(reaction => reaction[0][0] === element)
+//     solution.forEach(element => {
+//       const reaction = parsedReactions.find(r => r[0][0] === element[0])
+//       const newElements = reaction[1]
 
-      const neededForReaction = reaction[0][1]
-      const newElements = reaction[1]
+//       const count = element[1]
+//       const reactionCount = reaction[0][1]
 
-      const numFullySatisfiedReactions = Math.floor(elementCount / neededForReaction)
+//       if (newElements[0][0] === 'ORE') {
+//         out.push(element)
+//       } else {
+//         newElements.forEach(newElement => {
+//           react([newElement]).forEach(e => out.push([e[0], e[1] * count]))
+//         })
+//       }
+//     })
 
-      out[element] -= numFullySatisfiedReactions * neededForReaction
-      if (numFullySatisfiedReactions > 0) didReact = true
+//     return out
+//   }
 
-      for (const [newElement, count] of newElements) {
-        if (!out[newElement]) out[newElement] = 0
-        if (!waste[newElement]) waste[newElement] = 0
+//   const solution = [['FUEL', 1]]
 
-        out[newElement] += numFullySatisfiedReactions * count
-      }
-    }
+//   const sum = react(solution).reduce((acc, [element, count]) => {
+//     if (!acc[element]) acc[element] = 0
 
-    // What to do with the unreacted ones???
-    if (!didReact) {
-      for (const element of Object.keys(out)) {
-        if (element === 'ORE') continue
+//     acc[element] += count
 
-        const elementCount = out[element]
+//     return acc
+//   }, {})
 
-        if (elementCount === 0) continue
+//   console.log(sum)
 
-        const reaction = reactions.find(reaction => reaction[0][0] === element)
+//   return Object.keys(sum).reduce((acc, key) => {
+//     const needToCreate = sum[key]
+//     const reaction = parsedReactions.find(r => r[0][0] === key[0])
 
-        const neededForReaction = reaction[0][1]
-        const newElements = reaction[1]
+//     const oresToCreate = reaction[1][0][1]
 
-        const extra = neededForReaction - elementCount
-        // console.log(element, neededForReaction, elementCount)
+//     const multiplier = Math.ceil(needToCreate / oresToCreate)
+//     console.log(needToCreate, oresToCreate, multiplier)
 
-        for (const [newElement, count] of newElements) {
-          if (!out[newElement]) out[newElement] = 0
-          if (!waste[newElement]) waste[newElement] = 0
+//     acc += Math.ceil(needToCreate / oresToCreate) * oresToCreate
 
-          // out[newElement] += count
-        }
+//     return acc
+//   }, 0)
+// }
 
-        break
-      }
-    }
+// const part1 = module.exports = input => { // eslint-disable-line no-unused-vars
 
+// }
 
-    console.log('out', out)
-    console.log('waste', waste)
-
-    counter++
-    if (counter > 99) break
-  }
-
-  return out['ORE'] + waste['ORE']
-}
-
-const calculateOre = reactions => {
-  const parsedReactions = parseReactions(reactions)
-
-  const solution = { FUEL: 1 }
-
-  return react(solution, parsedReactions)
-}
-
-const part1 = module.exports = input => { // eslint-disable-line no-unused-vars
-
-}
-
-part1.calculateOre = calculateOre
+// part1.calculateOre = calculateOre
