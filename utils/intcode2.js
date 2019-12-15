@@ -48,6 +48,8 @@ module.exports = class Intcode {
 
     this.numInstructions = 0
     this.cyclesWastedWaitingforInput = 0
+
+    this.running = false
   }
 
   loadMemory(mem) {
@@ -125,9 +127,9 @@ module.exports = class Intcode {
   }
 
   async run() {
-    const run = true
+    this.running = true
 
-    while (run) {
+    while (this.running) {
       const rawInstruction = this.memory[this.pointer]
       const a = this.getValue(this.memory[this.pointer+1], getMode(rawInstruction, 0))
       const b = this.getValue(this.memory[this.pointer+2], getMode(rawInstruction, 1))
