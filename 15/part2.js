@@ -19,6 +19,7 @@ const turnRight = () => {
   else if (direction === right) direction = down
 }
 
+/* istanbul ignore next */
 const part2 = module.exports = (grid, goal) => { // eslint-disable-line no-unused-vars
   const findPathLength = (start, end) => {
     let position = start

@@ -76,6 +76,7 @@ const computerOutput = []
 
 let goal = [0, 0]
 
+/* istanbul ignore next */
 const part1 = module.exports = (input, callback, animate) => { // eslint-disable-line no-unused-vars
   const computer = new Intcode({ memory: input })
   computer.addInput(computerInput)

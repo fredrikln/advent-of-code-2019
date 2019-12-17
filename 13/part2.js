@@ -2,6 +2,7 @@ const { Cabinet } = require('./part1')
 const Intcode = require('../utils/intcode2')
 const { parseMemoryFromString } = require('../utils/intcode')
 
+/* istanbul ignore next */
 const part2 = module.exports = input => { // eslint-disable-line no-unused-vars
   const cabinetInput = []
   const cabinetOutput = []

@@ -133,6 +133,7 @@ class Cabinet {
   }
 }
 
+/* istanbul ignore next */
 const part1 = module.exports = input => { // eslint-disable-line no-unused-vars
   const cabinetInput = []
 
